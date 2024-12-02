@@ -24,7 +24,7 @@ const Register = () => {
         })
 
         if (response.ok) {
-            router.push('/login')
+            router.push('/auth/login')
         }
     }
 
