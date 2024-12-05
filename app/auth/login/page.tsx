@@ -1,9 +1,24 @@
 "use client";
 
+import { CardWrapper } from "@/components/card-wrapper";
+import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import { useAuth } from "@/hooks/useAuth";
+import { LoginSchema } from "@/schemas";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useTransition } from "react";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
 
 const Login = () => {
   const router = useRouter();
@@ -11,59 +26,87 @@ const Login = () => {
   const callbackUrl = searchParams.get("callbackUrl") || "/home";
   useAuth(false); // check if user is logged in
 
-  const [error, setError] = useState<string>("");
-  const [data, setData] = useState({ email: "", password: "" });
+  const [isPending, startTransition] = useTransition();
 
-  const loginUser = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const form = useForm<z.infer<typeof LoginSchema>>({
+    resolver: zodResolver(LoginSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
 
+  const loginUser = async (values: z.infer<typeof LoginSchema>) => {
     try {
-      const response = await signIn("credentials", {
-        ...data,
-        redirect: false,
+      startTransition(async () => {
+        const response = await signIn("credentials", {
+          ...values,
+          redirect: false,
+        });
+
+        if (response?.error) {
+          throw new Error(response?.error || "An unexpected error occurred");
+        }
+
+        router.push(callbackUrl);
+        router.refresh();
       });
-
-      if (response?.error) {
-        setError(response.error);
-        return;
-      }
-
-      router.push(callbackUrl);
-      router.refresh();
     } catch (error) {
-      console.log(error);
-      setError("An error occurred");
+      console.error("Error during login:", error);
+      alert("Something went wrong. Please try again.");
     }
   };
 
   return (
-    <form onSubmit={loginUser} className="space-y-4">
-      {error && (
-        <div className="bg-red-100 text-red-500 p-3 rounded">{error}</div>
-      )}
-      <input
-        type="email"
-        value={data.email}
-        onChange={(e) => setData({ ...data, email: e.target.value })}
-        placeholder="Email"
-        required
-        className="w-full p-2 border rounded"
-      />
-      <input
-        type="password"
-        value={data.password}
-        onChange={(e) => setData({ ...data, password: e.target.value })}
-        placeholder="Password"
-        required
-        className="w-full p-2 border rounded"
-      />
-      <button
-        type="submit"
-        className="w-full bg-blue-500 text-white p-2 rounded"
-      >
-        Login
-      </button>
-    </form>
+    <CardWrapper
+      headerLabel="Welcome back"
+      backButtonLabel="Don't have an account"
+      backButtonHref="/auth/register"
+    >
+      <Form {...form}>
+        <form className="grid gap-4" onSubmit={form.handleSubmit(loginUser)}>
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Email</FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    disabled={isPending}
+                    placeholder="gW5lD@example.com"
+                    type="email"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="password"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Password</FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    disabled={isPending}
+                    placeholder="********"
+                    type="password"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <Button disabled={isPending} type="submit" className="w-full">
+            Login
+          </Button>
+        </form>
+      </Form>
+    </CardWrapper>
   );
 };
 
