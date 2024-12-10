@@ -11,6 +11,13 @@ const Home = () => {
     <div>      
       <h1>Home Page</h1>
       <p>Welcome {session?.user?.name}</p>
+      {
+        !session?.user?.emailVerified && (<div>
+          <p>Verify your email</p>
+          <p>{session?.user?.email}</p>
+          <a>Verify</a>
+        </div>)
+      }
     </div>
   );
 };
