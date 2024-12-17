@@ -1,5 +1,6 @@
 "use client";
 
+import { verifyEmail } from "@/actions/verify-email";
 import { CardWrapper } from "@/components/card-wrapper";
 import { FormError } from "@/components/form-error";
 import { FormSuccess } from "@/components/form-success";
@@ -22,6 +23,16 @@ const VerifyEmail = () => {
       setError("Missing token");
       return;
     }
+
+    verifyEmail(token)
+      .then((data) => {
+        setSuccess(data?.success);
+        setError(data?.error);
+      })
+      .catch((error) => {
+        console.log(error);
+        setError("Something went wrong!");
+      });
   }, [success, error, token]);
 
   useEffect(() => {
