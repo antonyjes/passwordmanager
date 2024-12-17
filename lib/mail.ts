@@ -1,22 +1,15 @@
 import { Resend } from "resend";
-import crypto from "crypto";
-import prisma from "@/lib/prisma";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resendApiKey = process.env.RESEND_API_KEY;
 
-export const sendVerificationEmail = async (email: string, name: string) => {
+if (!resendApiKey) {
+  throw new Error("RESEND_API_KEY environment variable is not set");
+
+}
+const resend = new Resend(resendApiKey);
+
+export const sendVerificationEmail = async (email: string, name: string, token: string) => {
   try {
-    const token = crypto.randomBytes(32).toString("hex");
-    const expires = new Date(Date.now() + 60 * 60 * 1000); // 1 hour from now
-
-    await prisma.verificationToken.create({
-      data: {
-        email,
-        token,
-        expires,
-      },
-    });
-
     const verificationUrl = `${process.env.NEXTAUTH_URL}/auth/verify-email?token=${token}`;
 
     await resend.emails.send({
@@ -25,6 +18,8 @@ export const sendVerificationEmail = async (email: string, name: string) => {
       subject: "Verify your email address",
       html: `<p>Hi ${name},</p><p>Please verify your email address by clicking <a href="${verificationUrl}">here</a>.</p>`,
     });
+
+    console.log("Email sent");
   } catch (error) {
     console.log(error);
     throw new Error("Failed to send verification email");
