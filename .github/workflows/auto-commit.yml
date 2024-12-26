@@ -1,0 +1,34 @@
+name: Auto Commit and Push
+
+# Disparar el workflow cada 15 minutos
+on:
+  schedule:
+    - cron: "*/15 * * * *" # Cada 15 minutos
+  
+jobs:
+  auto-commit:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Paso 1: Chequear el repositorio
+      - name: Checkout code
+        uses: actions/checkout@v2
+      
+      # Paso 2: Configurar Git
+      - name: Set up Git
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+      
+      # Paso 3: Hacer cambios en el repositorio
+      - name: Make changes
+        run: |
+          # Aquí puedes agregar los comandos para hacer cambios en el repositorio
+          echo "Automated commit" >> changes.txt
+      
+      # Paso 4: Commit y push
+      - name: Commit and push changes
+        run: |
+          git add .
+          git commit -m "Automated commit"
+          git push
