@@ -20,13 +20,7 @@ jobs:
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
       
-      # Paso 3: Hacer cambios en el repositorio
-      - name: Make changes
-        run: |
-          # Aquí puedes agregar los comandos para hacer cambios en el repositorio
-          echo "Automated commit" >> changes.txt
-      
-      # Paso 4: Verificar si hay cambios para evitar commits vacíos
+      # Paso 3: Verificar si hay cambios para evitar commits vacíos
       - name: Check for changes
         id: changes_check
         run: |
@@ -38,7 +32,7 @@ jobs:
             echo "::set-output name=changes::true"
           fi
 
-      # Paso 5: Commit y push (solo si hay cambios)
+      # Paso 4: Commit y push (solo si hay cambios)
       - name: Commit and push changes
         if: steps.changes_check.outputs.changes == 'true'
         env:
@@ -49,4 +43,4 @@ jobs:
           current_day=$(date "+%A")
           git add .
           git commit -m "Commit made on ${current_day}, ${current_date}"
-          git push
+          git push origin main
