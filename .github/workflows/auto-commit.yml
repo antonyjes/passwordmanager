@@ -13,8 +13,6 @@ jobs:
       # Paso 1: Chequear el repositorio
       - name: Checkout code
         uses: actions/checkout@v2
-        with:
-          token: ${{ secrets.PAT_TOKEN }}
       
       # Paso 2: Configurar Git
       - name: Set up Git
@@ -44,7 +42,7 @@ jobs:
       - name: Commit and push changes
         if: steps.changes_check.outputs.changes == 'true'
         env:
-          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           # Obtener la fecha y el día para el mensaje del commit
           current_date=$(date "+%Y-%m-%d")
