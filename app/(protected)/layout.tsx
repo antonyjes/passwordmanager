@@ -4,7 +4,9 @@ const ProtectedLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <div>
       <Navbar />
-      {children}
+      <div className="flex items-center justify-center h-[80vh]">
+        {children}
+      </div>
     </div>
   );
 };
