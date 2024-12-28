@@ -1,6 +1,5 @@
 name: Auto Commit and Push
 
-# Disparar el workflow cada 15 minutos
 on:
   schedule:
     - cron: "*/15 * * * *" # Cada 15 minutos
@@ -8,11 +7,16 @@ on:
 jobs:
   auto-commit:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
-      # Paso 1: Chequear el repositorio
+      # Paso 1: Chequear el repositorio con historial completo
       - name: Checkout code
         uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       # Paso 2: Configurar Git
       - name: Set up Git
@@ -20,28 +24,26 @@ jobs:
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
 
-      # Paso 3: Verificar si hay cambios para evitar commits vacíos
+      # Paso 3: Verificar todos los cambios, incluyendo archivos nuevos
       - name: Check for changes
         id: changes_check
         run: |
-          git status
-          if [ -z "$(git status --porcelain)" ]; then
-            echo "No changes to commit."
-            echo "changes=false" >> $GITHUB_ENV
+          # Añadir todos los archivos (incluso los nuevos) al área de staging
+          git add -A
+          
+          # Verificar si hay cambios, incluyendo archivos nuevos
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "Changes detected (including new files)."
+            echo "CHANGES_EXIST=true" >> $GITHUB_ENV
+            git status
           else
-            echo "Changes detected."
-            echo "changes=true" >> $GITHUB_ENV
+            echo "No changes to commit."
+            echo "CHANGES_EXIST=false" >> $GITHUB_ENV
           fi
 
-      # Paso 4: Commit y push (solo si hay cambios)
+      # Paso 4: Commit y push si hay cambios
       - name: Commit and push changes
-        if: env.changes == 'true'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        if: env.CHANGES_EXIST == 'true'
         run: |
-          # Obtener la fecha y el día para el mensaje del commit
-          current_date=$(date "+%Y-%m-%d")
-          current_day=$(date "+%A")
-          git add .
-          git commit -m "Commit made on ${current_day}, ${current_date}"
+          git commit -m "Auto commit with changes $(date +'%Y-%m-%d %H:%M:%S')"
           git push origin main
