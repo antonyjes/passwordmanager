@@ -4,7 +4,7 @@ name: Auto Commit and Push
 on:
   schedule:
     - cron: "*/15 * * * *" # Cada 15 minutos
-  
+
 jobs:
   auto-commit:
     runs-on: ubuntu-latest
@@ -13,13 +13,13 @@ jobs:
       # Paso 1: Chequear el repositorio
       - name: Checkout code
         uses: actions/checkout@v2
-      
+
       # Paso 2: Configurar Git
       - name: Set up Git
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-      
+
       # Paso 3: Verificar si hay cambios para evitar commits vacíos
       - name: Check for changes
         id: changes_check
@@ -27,15 +27,15 @@ jobs:
           git status
           if [ -z "$(git status --porcelain)" ]; then
             echo "No changes to commit."
-            echo "::set-output name=changes::false"
+            echo "changes=false" >> $GITHUB_ENV
           else
             echo "Changes detected."
-            echo "::set-output name=changes::true"
+            echo "changes=true" >> $GITHUB_ENV
           fi
 
       # Paso 4: Commit y push (solo si hay cambios)
       - name: Commit and push changes
-        if: steps.changes_check.outputs.changes == 'true'
+        if: env.changes == 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
