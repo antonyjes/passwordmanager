@@ -15,6 +15,7 @@ export const LoginSchema = z.object({
 })
 
 export const ProfileSchema = z.object({
+    id: z.string().optional(),
     name: z.string().optional(),
     email: z.string().email({ message: "Invalid email address" }),
     image: z.any()
