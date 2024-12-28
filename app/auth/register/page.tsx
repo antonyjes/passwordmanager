@@ -91,7 +91,7 @@ const Register = () => {
                   <Input
                     {...field}
                     disabled={isPending}
-                    placeholder="gW5lD@example.com"
+                    placeholder="email@example.com"
                     type="email"
                   />
                 </FormControl>
