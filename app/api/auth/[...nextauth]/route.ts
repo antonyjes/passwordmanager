@@ -1,4 +1,4 @@
-import { PrismaAdapter } from "@auth/prisma-adapter";
+import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { NextAuthOptions } from "next-auth";
 import { prisma } from "@/lib/prisma";
 import CredentialsProvider from "next-auth/providers/credentials";
@@ -47,6 +47,30 @@ export const authOptions: NextAuthOptions = {
       },
     }),
   ],
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        return {
+          ...token,
+          id: user.id,
+          emailVerified: user.emailVerified,
+          isTwoFactorEnabled: user.isTwoFactorEnabled,
+        };
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      return {
+        ...session,
+        user: {
+          ...session.user,
+          id: token.id,
+          emailVerified: token.emailVerified,
+          isTwoFactorEnabled: token.isTwoFactorEnabled,
+        },
+      };
+    },
+  },
   session: {
     strategy: "jwt",
   },
