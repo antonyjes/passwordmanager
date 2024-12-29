@@ -20,7 +20,7 @@ const Home = () => {
   return (
     <div className="flex flex-col gap-4">
       <h1>Home Page</h1>
-      <p>Welcome {session?.user?.name}</p>
+      <p>Welcome {session?.user?.name} with ID: {session?.user?.id}</p>
       {session?.user?.emailVerified === null && (
         <div className="bg-blue-400 p-3 rounded-md flex gap-x-2 text-sm text-blue-900">
           <p>
