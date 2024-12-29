@@ -3,7 +3,7 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 export const useAuth = (requireAuth: boolean) => {
-  const { data: session, status } = useSession();
+  const { data: session, status, update } = useSession();
   const router = useRouter();
 
   useEffect(() => {
@@ -18,5 +18,5 @@ export const useAuth = (requireAuth: boolean) => {
     }
   }, [session, status, router, requireAuth]);
 
-  return { session, status };
+  return { session, status, update };
 };

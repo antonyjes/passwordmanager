@@ -40,7 +40,7 @@ export const authOptions: NextAuthOptions = {
           id: user.id,
           email: user.email,
           name: user.name,
-          image: user.image,
+          image: user.image as string | null | undefined,
           emailVerified: user.emailVerified,
           isTwoFactorEnabled: user.isTwoFactorEnabled,
         };
@@ -48,11 +48,26 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger, session }) {
+      if (trigger === "update" && session) {
+        return {
+          ...token,
+          id: session.user.id,
+          name: session.user.name,
+          email: session.user.email,
+          image: session.user.image,
+          emailVerified: session.user.emailVerified,
+          isTwoFactorEnabled: session.user.isTwoFactorEnabled,
+        };
+      }
+
       if (user) {
         return {
           ...token,
           id: user.id,
+          name: user.name,
+          email: user.email,
+          image: user.image,
           emailVerified: user.emailVerified,
           isTwoFactorEnabled: user.isTwoFactorEnabled,
         };
@@ -65,6 +80,9 @@ export const authOptions: NextAuthOptions = {
         user: {
           ...session.user,
           id: token.id,
+          name: token.name,
+          email: token.email,
+          image: token.image as string | null | undefined,
           emailVerified: token.emailVerified,
           isTwoFactorEnabled: token.isTwoFactorEnabled,
         },
