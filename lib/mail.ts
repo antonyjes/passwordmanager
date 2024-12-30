@@ -8,7 +8,11 @@ if (!resendApiKey) {
 
 const resend = new Resend(resendApiKey);
 
-export const sendVerificationEmail = async (email: string, name: string, token: string) => {
+export const sendVerificationEmail = async (
+  email: string,
+  name: string,
+  token: string
+) => {
   try {
     const verificationUrl = `${process.env.NEXTAUTH_URL}/auth/verify-email?token=${token}`;
 
@@ -23,5 +27,19 @@ export const sendVerificationEmail = async (email: string, name: string, token: 
   } catch (error) {
     console.log(error);
     throw new Error("Failed to send verification email");
+  }
+};
+
+export const sendTwoFactorTokenEmail = async (email: string, token: string) => {
+  try {
+    await resend.emails.send({
+      from: "onboarding@resend.dev",
+      to: email,
+      subject: "Two-factor authentication token",
+      html: `<p>Your two-factor authentication token is: <strong>${token}</strong></p>`,
+    });
+  } catch (error) {
+    console.log(error);
+    throw new Error("Failed to send two-factor token email");
   }
 };
