@@ -14,6 +14,10 @@ export const LoginSchema = z.object({
     password: z.string().min(1, { message: "Password is required" }),
 })
 
+export const TwoFactorSchema = z.object({
+    code: z.string().min(6, { message: "Code must be 6 characters" }),
+})
+
 export const ProfileSchema = z.object({
     id: z.string().optional(),
     name: z.string().optional(),
