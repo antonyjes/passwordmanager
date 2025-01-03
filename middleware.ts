@@ -5,7 +5,8 @@ export async function middleware(request: NextRequest) {
   const token = await getToken({ req: request });
   const isAuthPage =
     request.nextUrl.pathname.startsWith("/auth/login") ||
-    request.nextUrl.pathname.startsWith("/auth/register");
+    request.nextUrl.pathname.startsWith("/auth/register") ||
+    request.nextUrl.pathname.startsWith("/auth/two-factor");
 
   if (isAuthPage) {
     if (token) {
@@ -24,5 +25,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/home/:path*", "/auth/login", "/auth/register", "/accounts/:path*", "/profile"],
+  matcher: ["/home/:path*", "/auth/login", "/auth/two-factor", "/auth/register", "/accounts/:path*", "/profile"],
 };
